@@ -1,0 +1,10 @@
+**/.venv/
+**/node_modules/
+**/__pycache__/
+**/*.pyc
+backend/smartpantry.db
+backend/data/*.joblib
+backend/data/model_metrics.json
+backend/data/uci_online_retail_daily.csv
+dist/
+.env
