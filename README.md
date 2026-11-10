@@ -1,71 +1,113 @@
-# SmartPantry — Kitchen Inventory & Demand Forecasting
+# SmartPantry – Smart Kitchen Inventory & Demand Forecasting System
 
-A standalone full-stack project with a React frontend, FastAPI backend, SQLite database, inventory/expiry/sales/waste workflows, and an ML demand-forecasting pipeline. This is a clean independent implementation; it is not a fork or copy of the earlier Flask prototype.
+A full-stack kitchen inventory management application that combines inventory tracking, expiry monitoring, sales management, food-waste analysis, and machine learning-based demand forecasting.
 
-## Features
+SmartPantry helps kitchen operators monitor stock levels, identify ingredients nearing expiry, understand usage patterns, and plan future purchases using demand predictions.
 
-- Dashboard with stock value, low-stock alerts, expiry watch and recent sales
-- Ingredient CRUD, stock receiving and inventory CSV export
-- Batch expiry tracking; sales/waste consume batches using FEFO ordering
-- Sales entry automatically reduces stock and stores transaction history
-- Food-waste log with estimated ingredient cost
-- 7-day demand forecasting for nine demo ingredients
-- Trains Random Forest, Extra Trees and HistGradientBoosting regressors per item
-- Chronological 80/20 holdout evaluation with MAE, RMSE and R²; selects the lowest-test-MAE model
-- Import historical daily sales CSV and retrain
-- SQLite persistence; local-only development setup
+## Project Demo
 
-## Requirements
+**Watch the application demonstration:**
 
-- Windows 10/11
-- Python 3.11 or 3.12 recommended
-- Node.js 20 or newer (npm included)
+[▶ Watch SmartPantry Demo on YouTube](https://youtu.be/lWJLV27uWas)
 
-## Run on Windows
+The demo covers the dashboard, inventory management, sales tracking, expiry monitoring, ML-based demand forecasting, and analytics.
 
-1. Extract the entire ZIP.
-2. Double-click `run_all.bat`.
-3. Wait for the two terminal windows to finish installing dependencies and start.
-4. Open **http://127.0.0.1:5173** in your browser.
-5. Backend API docs are at **http://127.0.0.1:8000/docs**.
+## Key Features
 
-If you prefer separate terminals:
+### 1. Dashboard
+- Overview of inventory and stock value
+- Low-stock notifications
+- Upcoming expiry alerts
+- Recent sales and inventory activity
 
-**Terminal 1 — backend**
-```powershell
-cd backend
-.\run_backend.bat
-```
+### 2. Inventory Management
+- Add, edit, and delete ingredients
+- Manage ingredient categories and quantities
+- Receive additional stock
+- Export inventory information as CSV
 
-**Terminal 2 — frontend**
-```powershell
-cd frontend
-.\run_frontend.bat
-```
+### 3. Expiry Management
+- Track ingredient expiry dates by batch
+- Monitor ingredients approaching expiry
+- Apply First Expiry, First Out (FEFO) when consuming batches
 
-Do not run `run_all.bat` from inside the backend or frontend folder; run it from the extracted project root.
+### 4. Sales Management
+- Record ingredient-related sales transactions
+- Automatically update inventory quantities
+- Maintain sales transaction history
 
-## ML dataset and honest limitations
+### 5. Food Waste Management
+- Record wasted ingredients
+- Track quantities and estimated ingredient costs
+- Monitor waste-related losses
 
-`backend/data/demo_sales.csv` is a deterministic synthetic dataset (540 days × 9 kitchen ingredients). It is bundled so the application and training pipeline work offline on first launch. It is **not a public dataset and not real restaurant data**. Its purpose is to demonstrate the end-to-end ML workflow and populate the demo forecast screen.
+### 6. Machine Learning-Based Demand Forecasting
+- Forecast ingredient demand for the next seven days
+- Train and compare multiple regression models
+- Select a model based on chronological holdout test MAE
+- Generate reorder recommendations using predicted demand and stock information
+- Import historical daily sales through CSV and retrain models
 
-For your own project evaluation, collect or import historical daily sales from the target kitchen/restaurant. On the Demand Forecast page, use **Import sales CSV**. Required columns are `date,item_name,quantity`, with dates formatted `YYYY-MM-DD`. Item names should match the names in the inventory/training data. After import, the app retrains the models. Keep a separate test period and report metrics honestly; synthetic-data metrics are not evidence of real-world performance.
+### 7. Analytics and Reporting
+- Visualize inventory and sales information
+- Review demand forecasts and model evaluation metrics
+- Export inventory data for further analysis
 
-An optional downloader is included at `backend/download_uci_dataset.py`. It retrieves the UCI Online Retail dataset (CC BY 4.0), but that dataset represents a UK online gift/novelty retailer, **not a kitchen or food business**. It can be used as a generic retail forecasting benchmark, not as proof of kitchen-specific performance. Dataset source and citation:
+## Technology Stack
 
-Chen, D. (2015). *Online Retail* [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C5BW33. License: CC BY 4.0. Dataset details: https://archive.ics.uci.edu/dataset/352/online+retail.
+| Component | Technologies |
+|---|---|
+| Frontend | React, JavaScript, Vite |
+| Backend | Python, FastAPI |
+| Database | SQLite, SQLAlchemy |
+| Data Processing | Pandas, NumPy |
+| Machine Learning | Scikit-learn |
+| Forecasting Models | Random Forest, Extra Trees, HistGradientBoosting |
+| Data Exchange | REST API, JSON, CSV |
 
-To download it (optional):
-```powershell
-cd backend
-.venv\Scripts\activate
-pip install ucimlrepo
-python download_uci_dataset.py
-```
+## Machine Learning Methodology
 
-The optional UCI download is not wired into the default app training flow because its products are not kitchen ingredients. Use the app's CSV importer with appropriately prepared records if you want to experiment with it.
+SmartPantry includes a demand-forecasting pipeline designed to demonstrate how historical sales information can support kitchen inventory planning.
 
-## CSV format example
+**Workflow:**
+
+1. **Data collection:** Load historical daily ingredient sales.
+2. **Preprocessing:** Prepare sales records and organize observations by date and ingredient.
+3. **Model training:** Train Random Forest, Extra Trees, and HistGradientBoosting regression models.
+4. **Model evaluation:** Use a chronological 80/20 training and holdout split.
+5. **Model selection:** Select the model with the lowest holdout MAE for each ingredient.
+6. **Forecasting:** Generate seven-day ingredient demand predictions.
+7. **Reorder planning:** Use predicted demand and current inventory information to suggest replenishment quantities.
+
+### Evaluation Metrics
+
+The models are evaluated using:
+
+- **MAE (Mean Absolute Error):** Average absolute difference between actual and predicted quantities.
+- **RMSE (Root Mean Squared Error):** Measures prediction error while penalizing larger errors more heavily.
+- **R² Score:** Indicates how well the model explains variation in the target values.
+
+Actual evaluation results are generated by the application. No fixed accuracy percentage is claimed because forecasting performance depends on the data used.
+
+## Dataset Information
+
+### Default demonstration dataset
+
+The application includes:
+
+`backend/data/demo_sales.csv`
+
+- 540 days of synthetic daily sales records
+- Nine kitchen ingredients
+- Deterministic sample data for reproducible demonstrations
+
+**Important:** This is synthetic data, not real restaurant sales or a publicly collected kitchen dataset. It is included to demonstrate the forecasting workflow and allow the application to run offline.
+
+### Importing your own sales data
+
+The Demand Forecast page supports importing historical daily sales through CSV.
+
+Required columns:
 
 ```csv
 date,item_name,quantity
@@ -74,38 +116,169 @@ date,item_name,quantity
 2026-01-02,Tomatoes,5.0
 ```
 
-## Project structure
+Requirements:
+- Dates must use `YYYY-MM-DD` format.
+- Ingredient names must match the corresponding inventory/training item names.
+- Quantity must contain numeric values.
+
+After importing, the application retrains its forecasting models.
+
+For meaningful real-world evaluation, use historical data from the target kitchen or restaurant and preserve a separate chronological test period. Metrics obtained from synthetic data should not be treated as evidence of real-world forecasting performance.
+
+### Optional public dataset
+
+An optional downloader is provided for the UCI Online Retail dataset.
+
+**Source:** Chen, D. (2015). *Online Retail* [Dataset]. UCI Machine Learning Repository.
+
+- Dataset: https://archive.ics.uci.edu/dataset/352/online+retail
+- DOI: https://doi.org/10.24432/C5BW33
+- Licence: CC BY 4.0
+
+This dataset represents transactions from a UK online gift and novelty retailer, not a kitchen or food business. It can be used as a generic retail forecasting benchmark, but not as direct evidence of kitchen-specific performance.
+
+To download it optionally:
+
+```powershell
+cd backend
+.venv\Scripts\activate
+pip install ucimlrepo
+python download_uci_dataset.py
+```
+
+The optional downloader is not connected to the default application training pipeline.
+
+## System Architecture
+
+```mermaid
+flowchart TD
+    A[User] --> B[React Frontend]
+    B --> C[FastAPI Backend]
+    C --> D[SQLite Database]
+    C --> E[Data Processing]
+    E --> F[ML Training Pipeline]
+    F --> G[Model Evaluation]
+    G --> H[Demand Forecasting]
+    H --> I[Reorder Recommendations]
+    I --> B
+```
+
+## Project Structure
 
 ```text
-SmartPantry-Complete/
-├── run_all.bat
-├── README.md
+Smart-Pantry/
+│
 ├── backend/
-│   ├── app/                 # FastAPI routes, SQLAlchemy models, ML pipeline
-│   ├── data/                # SQLite DB is created here; demo sales CSV bundled
+│   ├── app/
+│   │   ├── FastAPI routes
+│   │   ├── Database models
+│   │   └── ML pipeline
+│   ├── data/
+│   │   └── demo_sales.csv
 │   ├── requirements.txt
 │   ├── run_backend.bat
 │   ├── train_model.py
 │   └── download_uci_dataset.py
-└── frontend/
-    ├── src/                 # React UI
-    ├── package.json
-    ├── index.html
-    └── run_frontend.bat
+│
+├── frontend/
+│   ├── src/
+│   ├── package.json
+│   ├── index.html
+│   └── run_frontend.bat
+│
+├── run_all.bat
+├── README.md
+└── .gitignore
 ```
+
+## Installation and Setup
+
+### Prerequisites
+
+- Windows 10 or Windows 11
+- Python 3.11 or 3.12
+- Node.js 20 or newer
+- npm
+
+### Run the application
+
+1. Clone or download this repository.
+2. Extract the project if downloaded as a ZIP.
+3. Open the project root folder.
+4. Double-click `run_all.bat`.
+5. Wait for the backend and frontend terminals to start.
+
+Open the application:
+
+**Frontend:** http://127.0.0.1:5173
+
+**Backend API documentation:** http://127.0.0.1:8000/docs
+
+### Run services separately
+
+**Backend – Terminal 1**
+
+```powershell
+cd backend
+.\run_backend.bat
+```
+
+**Frontend – Terminal 2**
+
+```powershell
+cd frontend
+.\run_frontend.bat
+```
+
+Run `run_all.bat` only from the project root directory.
 
 ## Troubleshooting
 
-- If port 8000 is already in use, stop the other process or change the port in `backend/run_backend.bat` and `frontend/src/main.jsx` (`API` constant).
-- If the browser says it cannot reach the API, make sure the backend terminal is still running and visit http://127.0.0.1:8000/api/health.
-- If the frontend does not start, use Node.js 20+ and run `npm install` from `frontend`.
-- If the Python install fails, use Python 3.11/3.12 and rerun `backend/run_backend.bat`.
-- Local data is stored in `backend/smartpantry.db`. Back it up before deleting or resetting the database.
+| Issue | Suggested solution |
+|---|---|
+| Frontend does not open | Check whether the frontend terminal is running and use Node.js 20+ |
+| Backend API unavailable | Check the backend terminal and visit `/api/health` |
+| Port 8000 already in use | Stop the process using the port or update the backend and frontend API configuration |
+| npm installation fails | Run `npm install` from the frontend directory |
+| Python dependencies fail | Use Python 3.11/3.12 and rerun the backend startup script |
 
-## Security and deployment
+The local SQLite database is stored at:
 
-This project is configured for local development, not public internet deployment. It does not currently include user authentication, CSRF protection, role-based access, production hosting configuration, or automated backups. Add these before using real business or personal data or deploying publicly.
+`backend/smartpantry.db`
 
-## Third-party software
+Back up this file before resetting or deleting local application data.
 
-Python and JavaScript dependencies are installed from their package managers and retain their own licences. This repository does not relicense those dependencies. Review the package licence notices before redistribution.
+## Security and Deployment Notes
+
+SmartPantry is currently configured for local development and demonstration.
+
+It does not currently include:
+- User authentication and role-based access control
+- CSRF protection
+- Production deployment configuration
+- Automated database backups
+
+Do not use it with sensitive real-world business data or expose it publicly without implementing appropriate security and deployment safeguards.
+
+## Third-Party Dependencies
+
+The project uses third-party Python and JavaScript packages. Each dependency retains its respective licence. This repository does not claim ownership of or relicense third-party software.
+
+## Future Enhancements
+
+- Production deployment with a persistent database
+- Authentication and role-based access control
+- Integration with real kitchen or restaurant sales data
+- More advanced time-series forecasting approaches
+- Automated stock replenishment and supplier integration
+- Improved monitoring and forecasting evaluation
+
+## Author
+
+**Nakshatra**
+
+GitHub: https://github.com/nakshatra2506
+
+---
+
+*SmartPantry – Making kitchen inventory management smarter through data and machine learning.*
